@@ -1,0 +1,52 @@
+Orphan process:
+An orphan process is a computer process whose parent process is terminated while this process itself is running. This happens when the parent process does not wait for its child process to complete.
+Following code demonstrates the implementation of orphan process.
+
+int main(){
+	pid_t pid;
+
+	pid = fork();
+	if (pid < 0){
+		printf("Fork failed");
+		return 1;
+	}
+	if (pid > 0){
+		printf("%d is the parent pid", getpid());
+	}
+	else{
+		printf("%d is the child pid", getpid());
+		for (int i = 0; i < 50; i++){
+			printf("Hello");
+		}
+	}
+	return 0;
+
+}
+In the above code the parent first finishes the code since the child takes more time to execute the for loop. We can also use sleep function in child to prolong its execution. Meanwhile parent process finishes the program and exits since wait function is not used.
+
+In UNIX like operating systems the orphan processes are immediatedly adopted by the system proces init.
+
+Zombie Process: A zombie process is a computer process that has completed its execution but still has its entry in the process table. The entry in the process table remains to allow the parent process to read its child's exit status. When a process ends, all of the memory and resources associated with the process is deallocated in order to be used by other processes. But the process's entry in the process table remains so that the parent can read the child's exit status by executing the system wait call. A child process always first becomes the zombie process before being removed from the table.
+Following code demonstrates the implementation of zombie process.
+
+int main(){
+	pid_t pid;
+
+	pid = fork();
+	if (pid < 0){
+		printf("Fork failed");
+		return 1;
+	}
+	if (pid > 0){
+		printf("%d is the parent pid", getpid());
+		sleep(100);
+	}
+	else{
+		printf("%d is the child pid", getpid());
+	}
+	return 0;
+}
+In this case parent process uses sleep and hence waits for the child process to finish first. Thus the child process becomes a zombie process until parent process removes its entry from the table.
+
+
+When a process calls any of the functions in the exec family the current process image is replaced with a new process image. It initializes the memory state inlcuding the PC. The text, data and stack segment of the process are replaced and only the user remains the same. If the exec system call is successful then it will not return back to the calling program since it's image is overided by the new program image and hence the calling image is lost.
