@@ -83,6 +83,8 @@ shellcmd xsh_process_ring(int nargs, char *args[]) {
         sid32 semaphores[num_process];
         int i;
         char processName[num_process];
+        printf("Number of Processes: %d\n", num_process);
+        printf("Number of Rounds: %d\n", rounds);
         if (strncmp(version, "work", 15) == 0 || strncmp(version, "hang", 15) == 0 || strncmp(version, "loop", 15) == 0){
                 for(i = 0; i < num_process; i++){
                         inbox[i] = num_process * rounds;
