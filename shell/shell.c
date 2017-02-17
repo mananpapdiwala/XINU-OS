@@ -12,6 +12,7 @@ const	struct	cmdent	cmdtab[] = {
 	{"cat",		FALSE,	xsh_cat},
 	{"clear",	TRUE,	xsh_clear},
 	{"date",	FALSE,	xsh_date},
+	{"dining_philosophers", FALSE, xsh_dining_philosophers}, 
 	{"devdump",	FALSE,	xsh_devdump},
 	{"echo",	FALSE,	xsh_echo},
 	{"exit",	TRUE,	xsh_exit},
@@ -21,7 +22,9 @@ const	struct	cmdent	cmdtab[] = {
 	{"memdump",	FALSE,	xsh_memdump},
 	{"memstat",	FALSE,	xsh_memstat},
 	{"process_ring",FALSE, 	xsh_process_ring},
+	{"producer_consumer", FALSE, xsh_producer_consumer},
 	{"ps",		FALSE,	xsh_ps},
+	{"readers_writers", FALSE, xsh_readers_writers},
 	{"sleep",	FALSE,	xsh_sleep},
 	{"uptime",	FALSE,	xsh_uptime},
 #ifdef ARM_BBB

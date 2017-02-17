@@ -18,7 +18,7 @@ shellcmd xsh_process_ring(int nargs, char *args[]) {
         int rounds = 5;
         char version[6];
         int inbox[NPROC];
-        strncpy(version, "work", 10);
+        strncpy(version, "work", 6);
         if (nargs == 2 && (strncmp(args[1], "--help", 7) == 0 || strncmp(args[1], "-h", 7) == 0)) {
                 printf("Usage: %s\n\n", args[0]);
                 printf("Description:\n");
@@ -55,7 +55,7 @@ shellcmd xsh_process_ring(int nargs, char *args[]) {
                         }
                         else if (strncmp(args[i], "--version", 15) == 0 || strncmp(args[i], "-v", 15) == 0){
                                 if(strncmp(args[i+1], "work", 15) == 0 || strncmp(args[i+1], "hang", 15) == 0 || strncmp(args[i+1], "loop", 15) == 0 || strncmp(args[i+1], "chaos", 15) == 0){
-                                        strncpy(version, args[++i], 10);
+                                        strncpy(version, args[++i], 6);
                                 }
                                 else{
                                         fprintf(stderr, "%s: Invalid mode. Please enter a valid mode.\n", args[0]);
