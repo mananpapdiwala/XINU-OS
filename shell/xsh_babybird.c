@@ -8,14 +8,17 @@
  */
 int worms_on_dish;
 int total_worms;
-int prev_bird_id;
 int worm_count;
+int num_baby_birds;
+int num_eat_worms;
+int num_fetch_worms;
+    
 cond_t fm;
 cond_t fd;
 pid32 prev;
 
-void fetch_worms(int, int, int, mutex_t*, cond_t*, cond_t*);
-void eat_worms(int, int, int, mutex_t*, cond_t*, cond_t*);
+void fetch_worms(mutex_t*, cond_t*, cond_t*);
+void eat_worms(int, mutex_t*, cond_t*, cond_t*);
 
 shellcmd xsh_babybird(int nargs, char *args[]) {
 
@@ -45,13 +48,9 @@ shellcmd xsh_babybird(int nargs, char *args[]) {
         return 1;
     }
 
-    int num_baby_birds;
     int babybird_parameter_count = 0;
-    int num_eat_worms;
     int eat_worms_parameter_count = 0;
-    int num_fetch_worms;
     int fetch_worms_parameter_count = 0;
-    prev = -1;
     int i;
     for(i = 1; i < nargs; i++){
     	if (strncmp(args[i], "--babies", 15) == 0 || strncmp(args[i], "-b", 15) == 0){
@@ -75,7 +74,7 @@ shellcmd xsh_babybird(int nargs, char *args[]) {
                	return 1;
     		}
             num_eat_worms = atoi(args[++i]);
-            if(num_eat_worms <= 0 || num_eat_worms > NPROC){
+            if(num_eat_worms <= 0){
                 fprintf(stderr, "%s: Please enter a valid value for eat worms.\n", args[0]);
                 fprintf(stderr, "Try %s: --help or -h for more information\n", args[0]);
                	return 1;
@@ -89,7 +88,7 @@ shellcmd xsh_babybird(int nargs, char *args[]) {
                	return 1;
     		}
             num_fetch_worms = atoi(args[++i]);
-            if(num_fetch_worms <= 0 || num_fetch_worms > NPROC){
+            if(num_fetch_worms <= 0){
                 fprintf(stderr, "%s: Please enter a valid value for fetch worms.\n", args[0]);
                 fprintf(stderr, "Try %s: --help or -h for more information\n", args[0]);
                	return 1;
@@ -115,19 +114,19 @@ shellcmd xsh_babybird(int nargs, char *args[]) {
     worms_on_dish = 0;
 
 
-    resume(create(fetch_worms, 1024, 20, "parentbird", 6, num_fetch_worms, num_baby_birds, num_eat_worms, mutex, fetch_mutex, filldish));
+    resume(create(fetch_worms, 1024, 20, "parentbird", 3, mutex, fetch_mutex, filldish));
     char processName[10];
     for(i = 1; i <= num_baby_birds; i++){
         sprintf(processName, "babybird%d", i);
-        resume(create(eat_worms, 1024, 20, processName, 6, i, num_eat_worms, num_baby_birds, mutex, fetch_mutex, filldish));
+        resume(create(eat_worms, 1024, 20, processName, 4, i, mutex, fetch_mutex, filldish));
     }
 
     return 0;
 }
 
-void eat_worms(int bird_id, int cycles, int baby_bird_count, mutex_t* mutex, cond_t* fetch_mutex, cond_t* filldish){
+void eat_worms(int bird_id, mutex_t* mutex, cond_t* fetch_mutex, cond_t* filldish){
     int i = 1;
-    for(; i <= cycles; i++){
+    for(; i <= num_eat_worms; i++){
         mutex_lock(mutex);
         if(worms_on_dish == 0){
             cond_signal(fetch_mutex);
@@ -136,20 +135,20 @@ void eat_worms(int bird_id, int cycles, int baby_bird_count, mutex_t* mutex, con
         worms_on_dish--;
         worm_count++;
         printf("Baby bird %d ate a worm! (%d total)\n", bird_id, i);
-        if(worm_count == baby_bird_count * cycles){
+        if(worm_count == num_baby_birds * num_eat_worms){
             printf("Worms left on the dish: %d\n", worms_on_dish);
         }
         mutex_unlock(mutex);
     }
 }
 
-void fetch_worms(int fetch_amount, int baby_bird_count, int cycles, mutex_t* mutex, cond_t* fetch_mutex, cond_t* filldish){
-    while(total_worms < baby_bird_count * cycles){
+void fetch_worms(mutex_t* mutex, cond_t* fetch_mutex, cond_t* filldish){
+    while(total_worms < num_baby_birds * num_eat_worms){
         mutex_lock(mutex);
         cond_wait(fetch_mutex, mutex);
-        worms_on_dish = fetch_amount;
-        total_worms+=fetch_amount;
-        printf("Parent bird filled the dish with %d worms!\n", fetch_amount);
+        worms_on_dish = num_fetch_worms;
+        total_worms+=num_fetch_worms;
+        printf("Parent bird filled the dish with %d worms!\n", num_fetch_worms);
         cond_signal(filldish);
         mutex_unlock(mutex);
     }
