@@ -4,6 +4,9 @@ extern	shellcmd  xsh_argecho	(int32, char *[]);
 /* in file xsh_arp.c */
 extern	shellcmd  xsh_arp	(int32, char *[]);
 
+/* in file xsh_babybird.c */
+extern	shellcmd  xsh_babybird	(int32, char *[]);
+
 /* in file xsh_bingid.c */
 extern	shellcmd  xsh_bingid	(int32, char *[]);
 

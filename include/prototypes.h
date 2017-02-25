@@ -45,6 +45,18 @@ extern	void	clkint(void);
 
 extern	syscall	close(did32);
 
+/* in file condinit.c */
+
+extern	syscall	cond_init(cond_t *);
+
+/* in file condwait.c */
+
+extern	syscall	cond_wait(cond_t *, mutex_t*);
+
+/* in file condsignal.c */
+
+extern	syscall	cond_signal(cond_t *);
+
 /* in file control.c */
 
 extern	syscall	control(did32, int32, int32, int32);
@@ -308,6 +320,15 @@ extern	bpid32	mkbufpool(int32, int32);
 extern	syscall	mount(char *, char *, did32);
 extern	int32	namlen(char *, int32);
 
+/* in file mutexcreate.c */
+extern syscall mutex_create(mutex_t *);
+
+/* in file mutexlock.c */
+extern syscall mutex_lock(mutex_t *);
+
+/* in file mutexunlock.c */
+extern syscall mutex_unlock(mutex_t *);
+
 /* in file naminit.c */
 extern	status	naminit(void);
 
@@ -544,6 +565,9 @@ extern	int32	insw(int32, int32 ,int32);
 
 /* in file suspend.c */
 extern	syscall	suspend(pid32);
+
+/* in file testandset.c*/
+extern mutex_t testandset(mutex_t *);
 
 /* in file ttycontrol.c */
 extern	devcall	ttycontrol(struct dentry *, int32, int32, int32);
