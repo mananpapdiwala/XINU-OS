@@ -1,105 +1,16 @@
-How the program works:
-The program has one integer to hold the number of rounds, one integer to hold the number of processes and one character array to hold the version.  The default values for process is 4, rounds is 5 and version is work.
-The program will first look if process_ring has multiple arguments.  If there isn't the program will just run with the default values.  
-If there is, the program will go through all the arguments and look for any of the arguments that resemble the arguments required for the assignment and change either the 
-number of processes, the number of rounds, or the version.  If the arguments are not in the correct format the program will show the appropriate message.  The user could use -h or --help
-for more information on the commands.  
-
-The program has 4 versions.
-
-1) Work
-
-xsh $ process_ring -p 5 -r 6
-Number of processes: 5
-Number of rounds: 6
-Ring ELEMENT 0 : Round 0 : Value 30
-Ring ELEMENT 1 : Round 0 : Value 29
-Ring ELEMENT 2 : Round 0 : Value 28
-Ring ELEMENT 3 : Round 0 : Value 27
-Ring ELEMENT 4 : Round 0 : Value 26
-xsh $ Ring ELEMENT 0 : Round 1 : Value 25
-Ring ELEMENT 1 : Round 1 : Value 24
-Ring ELEMENT 2 : Round 1 : Value 23
-Ring ELEMENT 3 : Round 1 : Value 22
-Ring ELEMENT 4 : Round 1 : Value 21
-Ring ELEMENT 0 : Round 2 : Value 20
-Ring ELEMENT 1 : Round 2 : Value 19
-Ring ELEMENT 2 : Round 2 : Value 18
-Ring ELEMENT 3 : Round 2 : Value 17
-Ring ELEMENT 4 : Round 2 : Value 16
-Ring ELEMENT 0 : Round 3 : Value 15
-Ring ELEMENT 1 : Round 3 : Value 14
-Ring ELEMENT 2 : Round 3 : Value 13
-Ring ELEMENT 3 : Round 3 : Value 12
-Ring ELEMENT 4 : Round 3 : Value 11
-Ring ELEMENT 0 : Round 4 : Value 10
-Ring ELEMENT 1 : Round 4 : Value 9
-Ring ELEMENT 2 : Round 4 : Value 8
-Ring ELEMENT 3 : Round 4 : Value 7
-Ring ELEMENT 4 : Round 4 : Value 6
-Ring ELEMENT 0 : Round 5 : Value 5
-Ring ELEMENT 1 : Round 5 : Value 4
-Ring ELEMENT 2 : Round 5 : Value 3
-Ring ELEMENT 3 : Round 5 : Value 2
-Ring ELEMENT 4 : Round 5 : Value 1
-ZERO!
-
-This is an example of process_ring that has a version "work".  The user also decided to input "-p 5" to change number of processes to 5 and "-r 6" to change number of rounds to 6.
-Each process will take turns to complete a round.
-
-Question: What property of Xinu allows the working version of your program to print values in the correct order?
-Semaphore synchronization allows our program to print the values in the correct order.  The semaphore for the last process is set to 1 and all the other semaphores are set to 0.
-The function for these programs has a wait system call that decrements the semaphore for the previous process' semaphore and a signal system call to increment 
-the semaphore for the current process.  Each process will wait for the previous process to complete and the first process will wait for the last process to complete.
+In the current assignment, we made the seven system calls mutex_create, mutex_lock, mutex_unlock, cond_init, cond_wait, cond_signal, testandset which can be all found under system directory. Pointers of type mutex_t and cond_t is created in xsh_babybird.c and it's references are passed into the mentioned system call. The mutex_create sets the variable value equal to zero. mutex_lock internally uses test and set mechanism to allow only one process to lock the variable and if any process tries to set lock on the already locked variable that process goes into busy wait until the lock is free. mutex_unlock makes the lock value zero. testandset function is like the testandset instruction in some processors. It makes the lock value 1 and returns previous lock value. cond_init initializes lock value to zero. cond_wait unlocks the mutex and busy waits until the conditional variable is equal to 1. cond_signal makes the condition variable equal to 1. Using mutex and conditional variables like semaphores we are about to achieve synchronization necessary in babybird problem.
 
 
 
 
-2) Hang
-xsh $ process_ring -v hang
-Version: hang
-Number of processes: 4
-Number of rounds: 5
 
-Why does your program hang?  What is the name of this behavior in an operating system?
-The process hangs because all the processes are waiting for each other.  We set all the semaphores to 0.  The name of this behavior is deadlock.  
+1. What is starvation? Is this protocol starvation-free?
+Answer: In operating systems when a process is denied service for indefinitely long time then it is said to be in a state of starvation since it starves for processor time. It may happen because of bad design or poor coding. Many times, it is a resource management problem where many processes compete for a shared resource and some processes monopolies the resources thus making other processes to fall into starvation. In operating systems where schedulers select processes with highest priority the low priority process may fall into starvation if there is always a higher priority process present. Some systems are design in such a way that the priority of the processes is increased with time so that processes with low priorities don't fall into starvation. 
 
+The protocol given in the assignment is free of starvation. A process that gets inside the loops will eventually get out in some time. It may take long time if there are many process accessing the function concurrently but it won't take indefinite time.
 
-3) Loop
-We cannot print Loop.
+2. What is deadlock? Is this protocol deadlock-free?
+Answer: Deadlock is a state when no processes can get the processor since they are all waiting on some resources in some cyclic fashion.
+For example: Let's say process1 wants resource 1 to execute further but is held by process 2. When process 2 gives up the resource 1 the process 1 can continue. Suppose process 2 is waiting for resource 2 which is held up by process 1 and process 2 can't move further until it can get resource 2. Now in this state both processes are dependent on resources held by other. The processor may be free but both processes won't be able to get it since they are waiting for a resource held by other. This is a deadlock state.
 
-Why does your program go into an infinite loop?  What is the name of this behavior in an operating system.
-We have caused the for loop in the function to not reach the terminating condition.  The program will run an infinite loop. This behavior is called an endless loop or infinite loop.  
-
-
-4) Chaos
-xsh $ process_ring -v chaos
-Number of Processes: 4
-Number of Rounds: 5
-Ring Element 0 : Round 0 : Value : 20
-Ring Element 0 : Round 1 : Value : 19
-Ring Element 0 : Round 2 : Value : 18
-Ring Element 0 : Round 3 : Value : 17
-Ring Element 0 : Round 4 : Value : 16
-Ring Element 1 : Round 0 : Value : 15
-Ring Element 1 : Round 1 : Value : 14
-Ring Element 1 : Round 2 : Value : 13
-Ring Element 1 : Round 3 : Value : 12
-Ring Element 1 : Round 4 : Value : 11
-Ring Element 2 : Round 0 : Value : 10
-Ring Element 2 : Round 1 : Value : 9
-Ring Element 2 : Round 2 : Value : 8
-Ring Element 2 : Round 3 : Value : 7
-Ring Element 2 : Round 4 : Value : 6
-Ring Element 3 : Round 0 : Value : 5
-Ring Element 3 : Round 1 : Value : 4
-Ring Element 3 : Round 2 : Value : 3xsh $
-Ring Element 3 : Round 3 : Value : 2
-Ring Element 3 : Round 4 : Value : 1
-ZERO!
-
-The chaos version does not use any synchronization method between the processes and has the processes running in random order.  This behavior is called race condition.  
-
-
-We both worked independently on the assignment and had discussions on regular intervals to discuss the problems others were facing.
-Both wrote the work version independently and was almost similar. Manan's argument validations code was merged and Ethan's code for different process version was merged.
+In the given protocol deadlock can occur. Let's say process 1 calls the lock function and the lock is not yet set. It sets the local variable me equal to thread id of process 1 (let's call it 1). Now me = 1. Process 1 goes inside the double do loop and sets global variable turn = 1. Since busy is false it will come out of inner do loop. It then sets busy = true. Let's say now current process is reschedule. Process 2 may now enter lock function, set local variable me = 2, go inside double do loop and make global variable turn = 2 (thread id of this thread or process). But since busy is true it won't be able to get out of inner do loop. It's going to run in infinite inner loop. After some time, process 1 may get processor back and starts execution after line busy = true. But now process 1 won't be able to get out of outer do loop as turn is global variable and is set to 2 by process 2 while me is local variable its value is 1 for process 1. The condition remains true and process 1 runs in infinite outer loop. This is deadlock state since both the process won't be able to get out.
